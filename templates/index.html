@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人格蒸馏 · 对话</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 设置面板 -->
+        <div id="settings-bar">
+            <button id="settings-toggle" title="设置">⚙️</button>
+            <div id="settings-panel" class="hidden">
+                <input type="password" id="api-key-input" placeholder="输入 DeepSeek API Key">
+                <button id="save-api-key">保存</button>
+            </div>
+        </div>
+
+        <!-- 选择状态 -->
+        <div id="select-state">
+            <h1>🧠 人格蒸馏 · 对话</h1>
+            <p class="subtitle">选择一个被蒸馏的人格，开始对话</p>
+            <div id="persona-grid">
+                {% for p in personas %}
+                <div class="persona-card" data-id="{{ p.id }}" data-theme="{{ p.theme_color }}">
+                    <div class="card-avatar">{{ p.avatar }}</div>
+                    <div class="card-name">{{ p.name }}</div>
+                    <div class="card-tagline">{{ p.tagline }}</div>
+                    <div class="card-desc">{{ p.description }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 聊天状态 -->
+        <div id="chat-state" class="hidden">
+            <div id="chat-header">
+                <button id="back-btn">← 返回</button>
+                <span id="chat-avatar"></span>
+                <span id="chat-name"></span>
+                <span id="chat-tagline"></span>
+            </div>
+            <div id="chat-messages"></div>
+            <div id="chat-input-area">
+                <textarea id="chat-input" rows="1" placeholder="输入消息..." autofocus></textarea>
+                <button id="send-btn">发送</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.pyc
+captures/
+screenshots/
+.DS_Store
+.distill.py
+.wechat_capture
