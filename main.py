@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import datetime
 from pathlib import Path
 
 import httpx
@@ -10,7 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from openai import AsyncOpenAI
 
-from context_injector import build_context
+from context_injector import build_context, meal_prefix
 from personas import list_personas, load_persona
 
 load_dotenv()
@@ -66,16 +67,25 @@ async def chat(request: Request):
             media_type="text/event-stream",
         )
 
-    # 组装 OpenAI 格式的 messages，system prompt 放最前面
-    messages = [{"role": "system", "content": persona["system_prompt"]}]
-
-    # 如果人格需要实时上下文（时间/天气），注入一条 system 消息
+    # 组装消息。注入上下文的 persona：system 消息顺序为 context → persona
+    #                               普通 persona：只有 persona system_prompt
+    messages = []
     location = persona.get("location")
-    if persona.get("needs_context") or location:
+    needs_ctx = persona.get("needs_context") or location
+
+    if needs_ctx:
+        # 上下文放第一个 system 消息，优先级最高
         context_text = await build_context(location=location or "北京")
         messages.append({"role": "system", "content": context_text})
 
+    messages.append({"role": "system", "content": persona["system_prompt"]})
     messages += [{"role": m["role"], "content": m["content"]} for m in history]
+
+    # 防幻觉核心：把时段指令拼到 user 消息前面，AI 无法跳过
+    if needs_ctx:
+        prefix = meal_prefix(datetime.now().hour)
+        message = f"{prefix}\n{message}"
+
     messages.append({"role": "user", "content": message})
 
     async def stream():
@@ -105,4 +115,4 @@ async def chat(request: Request):
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", "8000"))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="127.0.0.1", port=port)

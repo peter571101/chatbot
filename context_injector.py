@@ -10,21 +10,43 @@ _cache: dict = {}
 
 
 def _meal_hint(hour: int) -> str:
-    """根据小时返回当前时段提示，确保 AI 问对饭。"""
+    """返回注入 system 消息的时段标签。"""
     if 6 <= hour < 9:
-        return "当前时段：早晨，应该关心用户早饭吃了没有。"
+        return "早晨"
     elif 9 <= hour < 11:
-        return "当前时段：上午，早饭已过、午饭将近，可以问上午吃了什么/水果零食。"
+        return "上午"
     elif 11 <= hour < 13:
-        return "当前时段：中午，应该关心用户午饭吃了没有。千万不要问早饭！"
+        return "中午"
     elif 13 <= hour < 17:
-        return "当前时段：午后，午饭已过、晚饭前，可以关心下午茶或水果。"
+        return "下午"
     elif 17 <= hour < 20:
-        return "当前时段：傍晚，应该关心用户晚饭吃了没有。"
+        return "傍晚"
     elif 20 <= hour < 23:
-        return "当前时段：晚间，晚饭已过，可以关心别吃太多夜宵，提醒早睡。"
+        return "晚间"
     else:
-        return "当前时段：深夜/凌晨，应该关心用户为什么还没睡，催睡觉。千万不要问吃饭相关的问题！"
+        return "深夜"
+
+
+def meal_prefix(hour: int) -> str:
+    """防幻觉核心：直接命令 AI 的回复开头，DeepSeek 无法跳过。
+
+    格式：[时间戳|你必须说X|关心Y|禁止提Z]
+    极短、结构化、硬约束。不描述——直接命令。
+    """
+    if 6 <= hour < 9:
+        return f"[现在{hour}点|你必须说早上好|只关心早饭吃了没|禁止提午饭晚饭睡觉]"
+    elif 9 <= hour < 11:
+        return f"[现在{hour}点|你必须说上午好|关心加餐/水果|禁止提早饭-已过|禁止提午饭-还早]"
+    elif 11 <= hour < 13:
+        return f"[现在{hour}点|你必须说中午好|只关心午饭吃了没|禁止提早饭晚饭]"
+    elif 13 <= hour < 17:
+        return f"[现在{hour}点|你必须说下午好|关心下午茶/水果|禁止提早饭午饭晚饭-都吃过了]"
+    elif 17 <= hour < 20:
+        return f"[现在{hour}点|你必须说晚上好|只关心晚饭吃了没|禁止提早饭午饭]"
+    elif 20 <= hour < 23:
+        return f"[现在{hour}点|你必须说晚上好|提醒别吃夜宵早点睡|禁止提早饭午饭晚饭]"
+    else:
+        return f"[现在{hour}点|你必须说这么晚了|只催睡觉|禁止提任何吃饭-几点了还吃]"
 
 
 async def build_context(location: str = "北京") -> str:
