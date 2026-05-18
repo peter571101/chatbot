@@ -9,6 +9,24 @@ import httpx
 _cache: dict = {}
 
 
+def _meal_hint(hour: int) -> str:
+    """根据小时返回当前时段提示，确保 AI 问对饭。"""
+    if 6 <= hour < 9:
+        return "当前时段：早晨，应该关心用户早饭吃了没有。"
+    elif 9 <= hour < 11:
+        return "当前时段：上午，早饭已过、午饭将近，可以问上午吃了什么/水果零食。"
+    elif 11 <= hour < 13:
+        return "当前时段：中午，应该关心用户午饭吃了没有。千万不要问早饭！"
+    elif 13 <= hour < 17:
+        return "当前时段：午后，午饭已过、晚饭前，可以关心下午茶或水果。"
+    elif 17 <= hour < 20:
+        return "当前时段：傍晚，应该关心用户晚饭吃了没有。"
+    elif 20 <= hour < 23:
+        return "当前时段：晚间，晚饭已过，可以关心别吃太多夜宵，提醒早睡。"
+    else:
+        return "当前时段：深夜/凌晨，应该关心用户为什么还没睡，催睡觉。千万不要问吃饭相关的问题！"
+
+
 async def build_context(location: str = "北京") -> str:
     """返回一段注入到对话中的实时上下文文本（异步）。"""
     now = datetime.now()
@@ -21,9 +39,10 @@ async def build_context(location: str = "北京") -> str:
     )
 
     weather_info = await _get_weather(location)
+    meal_hint = _meal_hint(now.hour)
 
     return (
-        f"[系统实时信息]\n{time_info}\n{weather_info}\n"
+        f"[系统实时信息]\n{time_info}\n{weather_info}\n{meal_hint}\n"
         f"请在对话中自然地运用以上时间和天气信息。"
     )
 
