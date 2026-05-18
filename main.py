@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from openai import AsyncOpenAI
 
+from context_injector import build_context
 from personas import list_personas, load_persona
 
 load_dotenv()
@@ -67,6 +68,13 @@ async def chat(request: Request):
 
     # 组装 OpenAI 格式的 messages，system prompt 放最前面
     messages = [{"role": "system", "content": persona["system_prompt"]}]
+
+    # 如果人格需要实时上下文（时间/天气），注入一条 system 消息
+    location = persona.get("location")
+    if persona.get("needs_context") or location:
+        context_text = await build_context(location=location or "北京")
+        messages.append({"role": "system", "content": context_text})
+
     messages += [{"role": m["role"], "content": m["content"]} for m in history]
     messages.append({"role": "user", "content": message})
 
