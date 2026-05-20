@@ -33,7 +33,7 @@ body {
     position: relative;
 }
 
-/* Settings */
+/* ========== Settings ========== */
 #settings-bar {
     position: absolute;
     top: 12px;
@@ -63,8 +63,11 @@ body {
     border-radius: var(--radius);
     padding: 12px;
     display: flex;
-    gap: 8px;
     box-shadow: var(--shadow);
+}
+/* WeChat: no flex gap, use margin */
+#settings-panel > * + * {
+    margin-left: 8px;
 }
 
 #settings-panel input {
@@ -89,7 +92,7 @@ body {
     white-space: nowrap;
 }
 
-/* Select State */
+/* ========== Select State ========== */
 #select-state {
     padding: 60px 20px;
     text-align: center;
@@ -98,10 +101,16 @@ body {
 #select-state h1 {
     font-size: 32px;
     margin-bottom: 8px;
-    background: linear-gradient(135deg, var(--accent), #7c4dff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    /* WeChat fallback: solid accent color instead of gradient clip */
+    color: var(--accent);
+}
+/* Chrome-only gradient text */
+@supports (-webkit-background-clip: text) and (not (-webkit-overflow-scrolling: touch)) {
+    #select-state h1 {
+        background: linear-gradient(135deg, var(--accent), #7c4dff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
 }
 
 .subtitle {
@@ -110,7 +119,7 @@ body {
     font-size: 16px;
 }
 
-/* API Key prompt */
+/* ========== API Key prompt ========== */
 #key-prompt {
     background: var(--surface);
     border: 1px solid var(--accent);
@@ -133,8 +142,10 @@ body {
 
 #key-prompt-row {
     display: flex;
-    gap: 8px;
     justify-content: center;
+}
+#key-prompt-row > * + * {
+    margin-left: 8px;
 }
 
 #key-prompt-row input {
@@ -173,7 +184,7 @@ body {
     color: var(--accent);
 }
 
-/* Persona card disabled */
+/* ========== Persona Grid ========== */
 .persona-card.disabled {
     cursor: not-allowed;
     opacity: 0.4;
@@ -181,11 +192,23 @@ body {
 }
 
 #persona-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     max-width: 720px;
     margin: 0 auto;
+    /* margin-based gap for WeChat */
+}
+#persona-grid > * {
+    margin: 0 20px 20px 0;
+    width: calc(50% - 20px);
+    min-width: 200px;
+    max-width: 340px;
+}
+@media (min-width: 700px) {
+    #persona-grid > * {
+        width: calc(33.333% - 20px);
+    }
 }
 
 .persona-card {
@@ -227,7 +250,7 @@ body {
     line-height: 1.5;
 }
 
-/* Chat State */
+/* ========== Chat State ========== */
 #chat-state {
     height: 100vh;
     display: flex;
@@ -237,11 +260,13 @@ body {
 #chat-header {
     display: flex;
     align-items: center;
-    gap: 10px;
     padding: 14px 16px;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
+}
+#chat-header > * + * {
+    margin-left: 10px;
 }
 
 #back-btn {
@@ -279,24 +304,38 @@ body {
     padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+}
+#chat-messages > * + * {
+    margin-top: 16px;
 }
 
+/* ========== Messages ========== */
 .message {
     display: flex;
-    gap: 10px;
     max-width: 85%;
     animation: fadeIn 0.3s ease;
+    -webkit-animation: fadeIn 0.3s ease;
+}
+.message > * + * {
+    margin-left: 10px;
 }
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
 }
+@-webkit-keyframes fadeIn {
+    from { opacity: 0; -webkit-transform: translateY(8px); }
+    to { opacity: 1; -webkit-transform: translateY(0); }
+}
 
 .message.user {
     align-self: flex-end;
     flex-direction: row-reverse;
+}
+.message.user > * + * {
+    margin-left: 0;
+    margin-right: 10px;
 }
 
 .message.bot {
@@ -314,10 +353,7 @@ body {
     flex-shrink: 0;
 }
 
-.message.user .message-avatar {
-    background: var(--surface-light);
-}
-
+.message.user .message-avatar,
 .message.bot .message-avatar {
     background: var(--surface-light);
 }
@@ -328,7 +364,7 @@ body {
     line-height: 1.6;
     font-size: 15px;
     white-space: pre-wrap;
-    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .message.user .message-content {
@@ -343,12 +379,14 @@ body {
     border-bottom-left-radius: 4px;
 }
 
-/* Typing indicator */
+/* ========== Typing indicator ========== */
 .typing-indicator {
     display: flex;
-    gap: 4px;
     padding: 8px 0;
     align-self: flex-start;
+}
+.typing-indicator > * + * {
+    margin-left: 4px;
 }
 
 .typing-indicator span {
@@ -357,24 +395,31 @@ body {
     background: var(--text-muted);
     border-radius: 50%;
     animation: bounce 1.4s infinite ease-in-out;
+    -webkit-animation: bounce 1.4s infinite ease-in-out;
 }
 
-.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; -webkit-animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; -webkit-animation-delay: 0.4s; }
 
 @keyframes bounce {
     0%, 80%, 100% { transform: scale(0.6); }
     40% { transform: scale(1); }
 }
+@-webkit-keyframes bounce {
+    0%, 80%, 100% { -webkit-transform: scale(0.6); }
+    40% { -webkit-transform: scale(1); }
+}
 
-/* Input area */
+/* ========== Input area ========== */
 #chat-input-area {
     display: flex;
-    gap: 10px;
     padding: 14px 16px;
     background: var(--surface);
     border-top: 1px solid var(--border);
     flex-shrink: 0;
+}
+#chat-input-area > * + * {
+    margin-left: 10px;
 }
 
 #chat-input {
@@ -417,7 +462,7 @@ body {
     cursor: not-allowed;
 }
 
-/* Error message */
+/* ========== Error ========== */
 .error-msg {
     background: rgba(231, 76, 60, 0.2);
     color: var(--danger);
@@ -427,25 +472,24 @@ body {
     align-self: center;
 }
 
-/* Utilities */
+/* ========== Utilities ========== */
 .hidden {
     display: none !important;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-    width: 6px;
-}
-
-::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--text-muted);
+/* ========== Scrollbar (Chrome only) ========== */
+@media screen and (-webkit-min-device-pixel-ratio: 0) and (min-resolution: 0.001dpcm) {
+    ::-webkit-scrollbar {
+        width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--text-muted);
+    }
 }
