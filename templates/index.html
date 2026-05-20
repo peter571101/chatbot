@@ -21,6 +21,17 @@
         <div id="select-state">
             <h1>🧠 人格蒸馏 · 对话</h1>
             <p class="subtitle">选择一个被蒸馏的人格，开始对话</p>
+
+            <!-- API Key 提示 -->
+            <div id="key-prompt">
+                <p>🔑 请输入你自己的 DeepSeek API Key 才能开始对话</p>
+                <div id="key-prompt-row">
+                    <input type="password" id="key-prompt-input" placeholder="sk-...">
+                    <button type="button" id="key-prompt-save">确认</button>
+                </div>
+                <p class="key-hint">Key 仅保存在你的浏览器中，不会上传到服务器。<a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer">获取 Key</a></p>
+            </div>
+
             <div id="persona-grid">
                 {% for p in personas %}
                 <div class="persona-card" data-id="{{ p.id }}" data-theme="{{ p.theme_color }}">

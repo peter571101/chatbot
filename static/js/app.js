@@ -24,19 +24,53 @@ const settingsToggle = $("#settings-toggle");
 const settingsPanel = $("#settings-panel");
 const apiKeyInput = $("#api-key-input");
 const saveApiKeyBtn = $("#save-api-key");
+const keyPrompt = $("#key-prompt");
+const keyPromptInput = $("#key-prompt-input");
+const keyPromptSave = $("#key-prompt-save");
 
-// ========== 设置面板 ==========
-if (state.apiKey) {
-    apiKeyInput.value = state.apiKey;
+// ========== API Key 管理 ==========
+function hasApiKey() {
+    return !!state.apiKey;
 }
 
+function updateKeyUI() {
+    const has = hasApiKey();
+    // 主页的 key 提示
+    if (keyPrompt) {
+        keyPrompt.classList.toggle("hidden", has);
+    }
+    // 设置面板同步
+    apiKeyInput.value = state.apiKey;
+    // 人格卡片启用/禁用
+    $$(".persona-card").forEach(card => {
+        card.classList.toggle("disabled", !has);
+    });
+}
+
+function saveApiKey(key) {
+    state.apiKey = key.trim();
+    localStorage.setItem("anthropic_api_key", state.apiKey);
+    updateKeyUI();
+}
+
+// 主页 Key 输入
+keyPromptSave.addEventListener("click", () => {
+    saveApiKey(keyPromptInput.value);
+});
+
+keyPromptInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        saveApiKey(keyPromptInput.value);
+    }
+});
+
+// 设置面板
 settingsToggle.addEventListener("click", () => {
     settingsPanel.classList.toggle("hidden");
 });
 
 saveApiKeyBtn.addEventListener("click", () => {
-    state.apiKey = apiKeyInput.value.trim();
-    localStorage.setItem("anthropic_api_key", state.apiKey);
+    saveApiKey(apiKeyInput.value);
     settingsPanel.classList.add("hidden");
 });
 
@@ -47,10 +81,19 @@ document.addEventListener("click", (e) => {
     }
 });
 
+// 初始化
+updateKeyUI();
+
 // ========== 人格选择 ==========
 personaGrid.addEventListener("click", async (e) => {
     const card = e.target.closest(".persona-card");
-    if (!card) return;
+    if (!card || card.classList.contains("disabled")) return;
+
+    if (!hasApiKey()) {
+        keyPrompt.classList.remove("hidden");
+        keyPromptInput.focus();
+        return;
+    }
 
     const personaId = card.dataset.id;
     try {
@@ -111,7 +154,7 @@ backBtn.addEventListener("click", () => {
 // ========== 发送消息 ==========
 async function sendMessage() {
     const message = chatInput.value.trim();
-    if (!message || state.isStreaming || !state.currentPersona) return;
+    if (!message || state.isStreaming || !state.currentPersona || !hasApiKey()) return;
 
     chatInput.value = "";
     chatInput.style.height = "auto";

@@ -4,3 +4,4 @@ __pycache__/
 captures/
 screenshots/
 .DS_Store
+docs/upgrade-roadmap.md
