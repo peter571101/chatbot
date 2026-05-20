@@ -101,16 +101,7 @@ body {
 #select-state h1 {
     font-size: 32px;
     margin-bottom: 8px;
-    /* WeChat fallback: solid accent color instead of gradient clip */
     color: var(--accent);
-}
-/* Chrome-only gradient text */
-@supports (-webkit-background-clip: text) and (not (-webkit-overflow-scrolling: touch)) {
-    #select-state h1 {
-        background: linear-gradient(135deg, var(--accent), #7c4dff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
 }
 
 .subtitle {
@@ -192,23 +183,18 @@ body {
 }
 
 #persona-grid {
+    display: -webkit-flex;
     display: flex;
+    -webkit-flex-wrap: wrap;
     flex-wrap: wrap;
+    -webkit-justify-content: center;
     justify-content: center;
     max-width: 720px;
     margin: 0 auto;
-    /* margin-based gap for WeChat */
 }
 #persona-grid > * {
-    margin: 0 20px 20px 0;
-    width: calc(50% - 20px);
-    min-width: 200px;
-    max-width: 340px;
-}
-@media (min-width: 700px) {
-    #persona-grid > * {
-        width: calc(33.333% - 20px);
-    }
+    margin: 0 12px 20px 12px;
+    width: 260px;
 }
 
 .persona-card {
@@ -477,19 +463,14 @@ body {
     display: none !important;
 }
 
-/* ========== Scrollbar (Chrome only) ========== */
-@media screen and (-webkit-min-device-pixel-ratio: 0) and (min-resolution: 0.001dpcm) {
-    ::-webkit-scrollbar {
-        width: 6px;
-    }
-    ::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-        background: var(--border);
-        border-radius: 3px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-        background: var(--text-muted);
-    }
+/* ========== Scrollbar (desktop Chrome) ========== */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
 }
